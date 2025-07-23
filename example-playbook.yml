@@ -1,0 +1,16 @@
+---
+# Пример playbook для использования роли 00-keys
+- hosts: all
+  become: yes
+  roles:
+    - 00-keys
+
+# Пример с кастомными переменными
+# - hosts: all
+#   become: yes
+#   vars:
+#     ssh_keys_public_dir: "/custom/path/to/keys"
+#     ssh_keys_revoked_dir: "/custom/path/to/revoked"
+#     ssh_permit_root_login: "no"
+#   roles:
+#     - 00-keys 

@@ -1,0 +1,11 @@
+---
+# SSH конфигурация
+sshd_config: /etc/ssh/sshd_config
+ssh_service: sshd
+
+# Директории с SSH ключами
+ssh_keys_public_dir: "/root/ansible/public_keys"
+ssh_keys_revoked_dir: "/root/ansible/public_keys/revoked"
+
+# Настройки SSH
+ssh_permit_root_login: "prohibit-password" 

@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: barman
+  description: Role for installing applications and Docker on Debian systems
+  company: Your Company
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - docker
+    - monitoring
+    - system
+    - debian
+    - ubuntu
+
+dependencies: [] 

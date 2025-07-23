@@ -1,0 +1,48 @@
+---
+# Настройка SSH и добавление ключей
+- name: Show debug message
+  debug:
+    msg: "Deploying SSH keys for {{ inventory_hostname }}"
+
+- name: Ensure SSH directory exists
+  ansible.builtin.file:
+    path: ~/.ssh
+    state: directory
+    mode: '0700'
+
+# Добавляем ключи из директории public_keys
+- name: Add authorized keys from public_keys directory
+  ansible.posix.authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', item) }}"
+  with_fileglob:
+    - "{{ ssh_keys_public_dir }}/*.pub"
+    
+# удаляем ключи совпадающие с ключами из директории revoked
+- name: Remove revoked keys
+  ansible.posix.authorized_key:
+    user: root
+    state: absent
+    key: "{{ lookup('file', item) }}"
+  with_fileglob:
+    - "{{ ssh_keys_revoked_dir }}/*.pub"
+
+- name: Set PermitRootLogin to prohibit-password
+  ansible.builtin.lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '^#?\s*PermitRootLogin'
+    line: 'PermitRootLogin prohibit-password'
+    state: present
+
+- name: Validate SSH configuration
+  ansible.builtin.command: sshd -t -f "{{ sshd_config }}"
+  register: sshd_validation
+  changed_when: false
+  notify: Restart SSH
+
+- name: Restart SSH service
+  ansible.builtin.service:
+    name: "{{ ssh_service }}"
+    state: restarted  
+  tags: [never, restart] 
