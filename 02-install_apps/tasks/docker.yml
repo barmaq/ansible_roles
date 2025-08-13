@@ -1,0 +1,52 @@
+---
+# установка docker
+
+- name: Install required packages for Docker
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ docker_required_packages }}"
+
+- name: Create Docker GPG key directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download and convert Docker GPG key
+  shell: >
+    curl -fsSL {{ docker_gpg_key_url }} | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  args:
+    creates: /etc/apt/keyrings/docker.gpg
+
+- name: Set correct permissions for Docker GPG key
+  file:
+    path: /etc/apt/keyrings/docker.gpg
+    mode: '0644'
+    owner: root
+    group: root
+    
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+
+- name: Install Docker
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ docker_packages }}"
+
+- name: Start and enable Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes 

@@ -1,0 +1,13 @@
+---
+# установка инструментов и приложений в deb системы
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install network and system monitoring tools
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ monitoring_tools }}" 
