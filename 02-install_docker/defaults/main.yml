@@ -1,0 +1,17 @@
+---
+# Переменные по умолчанию для роли 02-install_docker
+
+# Пакеты, необходимые для установки Docker
+docker_required_packages:
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+
+# Пакеты Docker для установки
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin 

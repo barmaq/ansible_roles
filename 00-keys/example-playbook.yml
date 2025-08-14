@@ -1,21 +1,7 @@
 ---
-# Пример использования роли 02-install_apps
-- name: Install applications and Docker
+# Пример использования роли 00-keys
+- name: add and remove keys
   hosts: all
   become: yes
   roles:
-    - 02-install_apps
-
-# Пример с кастомными переменными
-- name: Install applications and Docker with custom settings
-  hosts: all
-  become: yes
-  vars:
-    monitoring_tools:
-      - htop
-      - curl
-      - rsync
-      - fail2ban
-      - iperf3
-  roles:
-    - 02-install_apps 
+    - 00-keys

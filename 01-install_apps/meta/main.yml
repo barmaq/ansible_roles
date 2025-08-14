@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: your_name
+  description: Role for installing basic applications and tools
+  company: your_company
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - apps
+    - tools
+    - monitoring
+    - system 

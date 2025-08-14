@@ -1,5 +1,5 @@
 ---
-# установка docker
+# основная задача роли - установка Docker
 
 - name: Install required packages for Docker
   apt:

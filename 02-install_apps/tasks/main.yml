@@ -1,8 +1,0 @@
----
-# основная задача роли - включает установку приложений и docker
-
-- name: Include apps installation tasks
-  include_tasks: apps.yml
-
-- name: Include Docker installation tasks
-  include_tasks: docker.yml 

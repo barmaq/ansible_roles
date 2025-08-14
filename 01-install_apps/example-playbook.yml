@@ -1,0 +1,7 @@
+---
+- name: Install basic applications and tools
+  hosts: all
+  become: yes
+  
+  roles:
+    - 01-install_apps 

@@ -1,0 +1,17 @@
+---
+# Переменные по умолчанию для роли 01-install_apps
+
+# Список инструментов для мониторинга сети и системы
+monitoring_tools:
+  - fail2ban
+  - iperf3
+  - mtr
+  - ethtool
+  - tcpdump
+  - duc
+  - curl
+  - arp-scan
+  - htop
+  - rsync
+  - snmp
+  - sysstat 

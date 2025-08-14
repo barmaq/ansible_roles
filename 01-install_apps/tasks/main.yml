@@ -1,5 +1,5 @@
 ---
-# установка инструментов и приложений в deb системы
+# основная задача роли - установка приложений и инструментов
 
 - name: Update apt cache
   apt:
@@ -12,4 +12,4 @@
     name: "{{ item }}"
     state: present
   loop: "{{ monitoring_tools }}" 
-  become: yes
+  become: yes 
