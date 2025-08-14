@@ -55,7 +55,13 @@ ssh_keys_revoked_dir: "/root/ansible/public_keys/revoked"
 
 # Настройки SSH
 ssh_permit_root_login: "prohibit-password"
+
+# пользователь для добавления публичных ключей
+target_user: "{{ ansible_user | default('root') }}"
 ```
+
+
+
 
 ### Переменные для переопределения
 
