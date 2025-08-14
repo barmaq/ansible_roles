@@ -5,9 +5,11 @@
   apt:
     update_cache: yes
     cache_valid_time: 3600
+  become: yes
 
 - name: Install network and system monitoring tools
   apt:
     name: "{{ item }}"
     state: present
   loop: "{{ monitoring_tools }}" 
+  become: yes

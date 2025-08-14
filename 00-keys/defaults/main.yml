@@ -3,6 +3,9 @@
 sshd_config: /etc/ssh/sshd_config
 ssh_service: sshd
 
+# Пользователь для которого настраиваются SSH ключи
+target_user: "{{ ansible_user | default('root') }}"
+
 # Директории с SSH ключами
 ssh_keys_public_dir: "/root/ansible/public_keys"
 ssh_keys_revoked_dir: "/root/ansible/public_keys/revoked"

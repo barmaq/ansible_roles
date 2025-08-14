@@ -30,4 +30,4 @@ docker_packages:
   - docker-compose-plugin
 
 # URL для загрузки GPG ключа Docker
-docker_gpg_key_url: "https://download.docker.com/linux/debian/gpg" 
+#docker_gpg_key_url: "https://download.docker.com/linux/debian/gpg" 

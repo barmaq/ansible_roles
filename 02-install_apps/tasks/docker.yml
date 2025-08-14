@@ -6,18 +6,25 @@
     name: "{{ item }}"
     state: present
   loop: "{{ docker_required_packages }}"
+  become: yes
 
 - name: Create Docker GPG key directory
   file:
     path: /etc/apt/keyrings
     state: directory
     mode: '0755'
+  become: yes
+
+- name: Set Docker GPG key URL based on distribution
+  set_fact:
+    docker_gpg_key_url: "https://download.docker.com/linux/{{ 'ubuntu' if ansible_distribution == 'Ubuntu' else 'debian' }}/gpg"
 
 - name: Download and convert Docker GPG key
   shell: >
     curl -fsSL {{ docker_gpg_key_url }} | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   args:
     creates: /etc/apt/keyrings/docker.gpg
+  become: yes
 
 - name: Set correct permissions for Docker GPG key
   file:
@@ -25,12 +32,18 @@
     mode: '0644'
     owner: root
     group: root
+  become: yes
+
+- name: Set Docker repository based on distribution
+  set_fact:
+    docker_repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/{{ 'ubuntu' if ansible_distribution == 'Ubuntu' else 'debian' }} {{ ansible_distribution_release }} stable"
     
 - name: Add Docker repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+    repo: "{{ docker_repo }}"
     state: present
     filename: docker
+  become: yes
 
 - name: Install Docker
   apt:
@@ -38,15 +51,18 @@
     state: present
     update_cache: yes
   loop: "{{ docker_packages }}"
+  become: yes
 
 - name: Start and enable Docker service
   systemd:
     name: docker
     state: started
     enabled: yes
+  become: yes
 
 - name: Add user to docker group
   user:
     name: "{{ ansible_user }}"
     groups: docker
-    append: yes 
+    append: yes
+  become: yes 
