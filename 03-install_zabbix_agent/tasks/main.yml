@@ -1,0 +1,53 @@
+---
+- name: Install Zabbix agent
+  ansible.builtin.apt:
+    name: "{{ zabbix_agent_package }}"
+    state: present
+  become: yes
+
+- name: Configure Zabbix agent Server
+  ansible.builtin.lineinfile:
+    path: "{{ zabbix_agent_config_path }}"
+    regexp: '^#?\s*Server='
+    line: "Server={{ zabbix_server }}"
+  become: yes
+  notify: Restart Zabbix agent
+
+- name: Configure Zabbix agent Hostname
+  ansible.builtin.lineinfile:
+    path: "{{ zabbix_agent_config_path }}"
+    regexp: '^#?\s*Hostname='
+    line: "Hostname={{ zabbix_agent_hostname }}"
+  become: yes
+  notify: Restart Zabbix agent
+
+- name: Configure Zabbix agent ListenPort
+  ansible.builtin.lineinfile:
+    path: "{{ zabbix_agent_config_path }}"
+    regexp: '^#?\s*ListenPort='
+    line: "ListenPort={{ zabbix_agent_listen_port }}"
+  become: yes
+  notify: Restart Zabbix agent
+
+- name: Configure Zabbix agent HostMetadata
+  ansible.builtin.lineinfile:
+    path: "{{ zabbix_agent_config_path }}"
+    regexp: '^#?\s*HostMetadata='
+    line: "HostMetadata={{ zabbix_agent_host_metadata }}"
+  become: yes
+  notify: Restart Zabbix agent
+
+- name: Configure Zabbix agent ServerActive
+  ansible.builtin.lineinfile:
+    path: "{{ zabbix_agent_config_path }}"
+    regexp: '^#?\s*ServerActive='
+    line: "ServerActive={{ zabbix_server_active }}"
+  become: yes
+  notify: Restart Zabbix agent
+
+- name: Enable and start Zabbix agent
+  ansible.builtin.systemd:
+    name: "{{ zabbix_agent_service }}"
+    enabled: yes
+    state: started
+  become: yes

@@ -1,4 +1,23 @@
 ---
+
+- name: Ensure local SSH directory exists
+  ansible.builtin.file:
+    path: "{{ lookup('env', 'HOME') }}/.ssh"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+  run_once: true
+
+- name: Add hosts to known_hosts
+  ansible.builtin.shell: |
+    ssh-keyscan -H {{ hostvars[item].ansible_host | default(item) }} >> {{ lookup('env', 'HOME') }}/.ssh/known_hosts 2>/dev/null
+  loop: "{{ groups['all'] }}"
+  delegate_to: localhost
+  run_once: true
+  changed_when: false
+
+
+
 # Настройка SSH и добавление ключей
 - name: Show debug message
   debug:

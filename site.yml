@@ -1,0 +1,32 @@
+---
+- name: Prepare controller SSH known_hosts
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Ensure local SSH directory exists
+      ansible.builtin.file:
+        path: "{{ lookup('env', 'HOME') }}/.ssh"
+        state: directory
+        mode: "0700"
+
+    - name: Add inventory hosts to known_hosts
+      ansible.builtin.known_hosts:
+        path: "{{ lookup('env', 'HOME') }}/.ssh/known_hosts"
+        name: "{{ hostvars[item].ansible_host | default(item) }}"
+        key: "{{ lookup('pipe', 'ssh-keyscan -H ' ~ (hostvars[item].ansible_host | default(item)) ~ ' 2>/dev/null') }}"
+      loop: "{{ groups['all'] }}"
+      when: item != 'localhost'
+
+    - name: Comment cdrom lines in sources.list
+      ansible.builtin.replace:
+        path: /etc/apt/sources.list
+        regexp: '^(.*cdrom.*)$'
+        replace: '#\1'
+        backup: yes
+
+- name: Configure target hosts
+  hosts: all
+  roles:
+    - 00-keys
+    - 01-install_apps
+    - 02-install_docker
