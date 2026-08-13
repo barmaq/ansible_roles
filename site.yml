@@ -30,3 +30,5 @@
     - 00-keys
     - 01-install_apps
     - 02-install_docker
+    - 03-install_zabbix_agent
+    - 04-welcome

@@ -1,0 +1,48 @@
+---
+all:
+  children:
+    DC:
+      hosts:
+        hopkins:
+          ansible_host: hopkins.techzone.spb.ru
+        s0:
+          ansible_host: s0.inftools.ru
+        m0:
+          ansible_host: m0.inftools.ru
+    SPB:
+      hosts:
+        debian0:
+          ansible_host: debian0.inftools.ru
+        lanner:
+          ansible_host: lanner.inftools.ru
+        sherman:
+          ansible_host: sherman.inftools.ru
+        dupin:
+          ansible_host: dupin.inftools.ru
+    MSK:
+      hosts:
+        mercer:
+          ansible_host: mercer.inftools.ru
+          # старые алгоритмы подписи! убрать после обновления
+          ansible_ssh_common_args: '-o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostKeyAlgorithms=+ssh-rsa'
+        costa-rica:
+          ansible_host: costa-rica.inftools.ru
+        barker:
+          ansible_host: barker.inftools.ru
+    EKB:
+      hosts:
+        evans:
+          ansible_host: evans.inftools.ru
+    KZN:
+      hosts:
+        algar2:
+          ansible_host: algar2.inftools.ru
+    KRD:
+      hosts:
+        morton:
+          ansible_host: morton.inftools.ru
+  vars:
+    ansible_user: root
+    ansible_ssh_private_key_file: /root/.ssh/M0-Ansible.rsa
+    # завершает соединение с сервером, если авторизация по ключу не работает. иначе плейбук виснет в вечном диалоге с просьбой ввести пароль
+    ansible_ssh_common_args: '-o BatchMode=yes -o ConnectTimeout=10'

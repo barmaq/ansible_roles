@@ -1,0 +1,9 @@
+---
+- name: Install welcome login script
+  ansible.builtin.copy:
+    src: "{{ welcome_script_src }}"
+    dest: "{{ welcome_script_dest }}"
+    owner: "{{ welcome_script_owner }}"
+    group: "{{ welcome_script_group }}"
+    mode: "{{ welcome_script_mode }}"
+  become: yes

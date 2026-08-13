@@ -1,0 +1,6 @@
+---
+welcome_script_src: welcome.sh
+welcome_script_dest: /etc/profile.d/welcome.sh
+welcome_script_mode: "0755"
+welcome_script_owner: root
+welcome_script_group: root
