@@ -16,6 +16,11 @@ echo -e "==========================================${NC}"
 
 echo -e "\n${BOLD}${YELLOW}[ ИМЯ СЕРВЕРА ]${NC}"
 echo -e "${WHITE}$(hostname)${NC}"
+if uptime_pretty=$(uptime -p 2>/dev/null); then
+    echo -e "${CYAN}Uptime: ${WHITE}${uptime_pretty#up }${NC}"
+else
+    echo -e "${CYAN}Uptime: ${WHITE}$(uptime | sed 's/.*up //; s/, *[0-9]* user.*//')${NC}"
+fi
 
 echo -e "\n${BOLD}${YELLOW}[ ОПЕРАЦИОННАЯ СИСТЕМА ]${NC}"
 if [ -f /etc/os-release ]; then
@@ -103,5 +108,33 @@ for iface in /sys/class/net/*; do
 done
 
 echo -e "${BOLD}-----------------------------------------------------------------------${NC}"
+
+echo -e "\n${BOLD}${YELLOW}[ ИСПОЛЬЗОВАНИЕ ДИСКА ]${NC}"
+echo -e "${BOLD}----------------------------------------------------------------------${NC}"
+printf "${BOLD}%-18s %-10s %-13s %-10s %-14s %s${NC}\n" \
+    "Файловая система" "Размер" "Использовано" "Доступно" "Использовано%" "Точка монтирования"
+echo -e "${BOLD}----------------------------------------------------------------------${NC}"
+
+df -h --output=source,size,used,avail,pcent,target -x tmpfs -x devtmpfs -x squashfs -x overlay 2>/dev/null | \
+tail -n +2 | while read -r fs size used avail pcent mount; do
+    [ -z "$fs" ] && continue
+    usage="${pcent%%%}"
+    if [ "$usage" -ge 90 ] 2>/dev/null; then
+        disk_color="${RED}"
+    elif [ "$usage" -ge 75 ] 2>/dev/null; then
+        disk_color="${YELLOW}"
+    else
+        disk_color="${GREEN}"
+    fi
+
+    if [ ${#fs} -gt 17 ]; then
+        fs="${fs:0:14}..."
+    fi
+
+    printf "${disk_color}%-18s %-10s %-13s %-10s %-14s %s${NC}\n" \
+        "$fs" "$size" "$used" "$avail" "$pcent" "$mount"
+done
+
+echo -e "${BOLD}----------------------------------------------------------------------${NC}"
 echo -e "${CYAN}        $(date '+%Y-%m-%d %H:%M:%S')${NC}"
 echo -e "${BOLD}${CYAN}==========================================${NC}"
