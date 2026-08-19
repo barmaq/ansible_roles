@@ -16,3 +16,5 @@ monitoring_tools:
   - snmp
   - sysstat 
   - msmtp
+  - ncdu
+  - iotop
