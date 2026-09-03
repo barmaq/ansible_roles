@@ -1,0 +1,6 @@
+---
+- name: Install PostgreSQL for 1C
+  hosts: all
+  become: yes
+  roles:
+    - 06-install_postgresql_1c

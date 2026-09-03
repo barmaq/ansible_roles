@@ -1,0 +1,20 @@
+---
+# Дистрибутив платформы 1С
+onec_distrib_url: "https://s0.inftools.ru/distrib/server64_8_3_27_2074.zip"
+onec_version: "8.3.27.2074"
+onec_arch: "x86_64"
+onec_components: "server,ws"
+onec_instance: "srv1cv83"
+
+# Рабочие пути
+onec_download_dir: "/tmp/1c-server"
+onec_zip_name: "server64_{{ onec_version | replace('.', '_') }}.zip"
+onec_setup_run: "setup-full-{{ onec_version }}-{{ onec_arch }}.run"
+onec_install_dir: "/opt/1cv8/{{ onec_arch }}/{{ onec_version }}"
+onec_unit_template: "srv1cv8-{{ onec_version }}@.service"
+onec_unit_name: "srv1cv8-{{ onec_version }}@{{ onec_instance }}.service"
+# Короткое имя для systemctl status/start/stop srv1cv83
+onec_service_alias: "{{ onec_instance }}"
+
+# Шрифты Microsoft (нужны для 1С)
+onec_mscorefonts_package: "ttf-mscorefonts-installer"

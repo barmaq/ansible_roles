@@ -1,0 +1,6 @@
+---
+- name: Install 1C server
+  hosts: all
+  become: yes
+  roles:
+    - 05-install_1c_server

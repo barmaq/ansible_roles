@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: your_name
+  description: Role for installing 1C:Enterprise server on Debian
+  company: your_company
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Debian
+      versions:
+        - all
+  galaxy_tags:
+    - onec
+    - 1c
+    - server
+dependencies: []

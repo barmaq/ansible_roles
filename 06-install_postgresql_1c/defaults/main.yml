@@ -1,0 +1,20 @@
+---
+# Дистрибутив PostgreSQL для 1С
+postgresql_1c_distrib_url: "https://s0.inftools.ru/distrib/postgresql_18.4_1_debian_12.11_x86_64_package.tar.bz2"
+postgresql_1c_download_dir: "/tmp/postgresql-distrib-1c"
+postgresql_1c_archive_name: "postgresql-1c-package.tar.bz2"
+postgresql_1c_major_version: "18"
+
+# Пути конфигов
+postgresql_1c_config_path: "/etc/postgresql/{{ postgresql_1c_major_version }}/main/postgresql.conf"
+postgresql_1c_hba_path: "/etc/postgresql/{{ postgresql_1c_major_version }}/main/pg_hba.conf"
+postgresql_1c_service: "postgresql"
+
+# Параметры postgresql.conf
+# shared_buffers ≈ 25–30% RAM (пример: 8 ГБ RAM → ~2 ГБ)
+postgresql_1c_shared_buffers: "2GB"
+# work_mem ≈ RAM / 32..64
+postgresql_1c_work_mem: "128MB"
+# maintenance_work_mem ≈ work_mem * 4 (или 256MB–4GB)
+postgresql_1c_maintenance_work_mem: "512MB"
+postgresql_1c_max_connections: 100

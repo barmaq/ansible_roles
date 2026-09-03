@@ -1,0 +1,117 @@
+---
+- name: Install archive tools
+  ansible.builtin.apt:
+    name:
+      - bzip2
+    state: present
+    update_cache: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  become: yes
+
+- name: Create PostgreSQL download directory
+  ansible.builtin.file:
+    path: "{{ postgresql_1c_download_dir }}"
+    state: directory
+    mode: "0755"
+  become: yes
+
+- name: Download PostgreSQL 1C distribution
+  ansible.builtin.get_url:
+    url: "{{ postgresql_1c_distrib_url }}"
+    dest: "{{ postgresql_1c_download_dir }}/{{ postgresql_1c_archive_name }}"
+    mode: "0644"
+  become: yes
+
+- name: Unpack PostgreSQL 1C distribution
+  ansible.builtin.unarchive:
+    src: "{{ postgresql_1c_download_dir }}/{{ postgresql_1c_archive_name }}"
+    dest: "{{ postgresql_1c_download_dir }}"
+    remote_src: yes
+  become: yes
+
+- name: Find PostgreSQL deb packages
+  ansible.builtin.find:
+    paths: "{{ postgresql_1c_download_dir }}"
+    patterns: "*.deb"
+    recurse: yes
+  register: postgresql_1c_debs
+  become: yes
+
+- name: Fail if no deb packages found
+  ansible.builtin.fail:
+    msg: "В архиве PostgreSQL не найдено .deb пакетов: {{ postgresql_1c_download_dir }}"
+  when: postgresql_1c_debs.files | length == 0
+
+- name: Install PostgreSQL 1C packages
+  ansible.builtin.shell: |
+    apt-get install -y {{ postgresql_1c_debs.files | map(attribute='path') | list | join(' ') }}
+  args:
+    executable: /bin/bash
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  register: postgresql_1c_apt_install
+  changed_when: "'is already the newest version' not in postgresql_1c_apt_install.stdout"
+  become: yes
+
+- name: Enable and start PostgreSQL
+  ansible.builtin.systemd:
+    name: "{{ postgresql_1c_service }}"
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Check PostgreSQL version
+  ansible.builtin.command: psql --version
+  register: postgresql_1c_version_check
+  changed_when: false
+  become: yes
+
+- name: Show PostgreSQL version
+  ansible.builtin.debug:
+    msg: "{{ postgresql_1c_version_check.stdout }}"
+
+- name: Configure shared_buffers
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_1c_config_path }}"
+    regexp: '^#?\s*shared_buffers\s*='
+    line: "shared_buffers = {{ postgresql_1c_shared_buffers }}"
+  become: yes
+  notify: Restart PostgreSQL
+
+- name: Configure work_mem
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_1c_config_path }}"
+    regexp: '^#?\s*work_mem\s*='
+    line: "work_mem = {{ postgresql_1c_work_mem }}"
+  become: yes
+  notify: Restart PostgreSQL
+
+- name: Configure maintenance_work_mem
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_1c_config_path }}"
+    regexp: '^#?\s*maintenance_work_mem\s*='
+    line: "maintenance_work_mem = {{ postgresql_1c_maintenance_work_mem }}"
+  become: yes
+  notify: Restart PostgreSQL
+
+- name: Configure max_connections
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_1c_config_path }}"
+    regexp: '^#?\s*max_connections\s*='
+    line: "max_connections = {{ postgresql_1c_max_connections }}"
+  become: yes
+  notify: Restart PostgreSQL
+
+- name: Flush handlers to apply PostgreSQL config
+  ansible.builtin.meta: flush_handlers
+
+- name: Remind to set postgres password manually
+  ansible.builtin.debug:
+    msg:
+      - "PostgreSQL установлен. Пароль пользователя postgres ролью не меняется."
+      - "Задайте его вручную на сервере:"
+      - "  su - postgres"
+      - "  psql -c \"ALTER USER postgres WITH PASSWORD 'ВАШ_ПАРОЛЬ';\""
+      - "  exit"
+      - "Подключение из консоли администрирования 1С — по DNS-имени сервера."

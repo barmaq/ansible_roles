@@ -1,0 +1,118 @@
+---
+- name: Accept Microsoft fonts EULA
+  ansible.builtin.debconf:
+    name: "{{ onec_mscorefonts_package }}"
+    question: msttcorefonts/accepted-mscorefonts-eula
+    value: "true"
+    vtype: select
+  become: yes
+
+- name: Install Microsoft core fonts
+  ansible.builtin.apt:
+    name: "{{ onec_mscorefonts_package }}"
+    state: present
+    update_cache: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  become: yes
+
+- name: Install unzip
+  ansible.builtin.apt:
+    name: unzip
+    state: present
+  become: yes
+
+- name: Check if 1C version is already installed
+  ansible.builtin.stat:
+    path: "{{ onec_install_dir }}"
+  register: onec_install_stat
+  become: yes
+
+- name: Create 1C download directory
+  ansible.builtin.file:
+    path: "{{ onec_download_dir }}"
+    state: directory
+    mode: "0755"
+  become: yes
+  when: not onec_install_stat.stat.exists
+
+- name: Download 1C server distribution
+  ansible.builtin.get_url:
+    url: "{{ onec_distrib_url }}"
+    dest: "{{ onec_download_dir }}/{{ onec_zip_name }}"
+    mode: "0644"
+  become: yes
+  when: not onec_install_stat.stat.exists
+
+- name: Unpack 1C server distribution
+  ansible.builtin.unarchive:
+    src: "{{ onec_download_dir }}/{{ onec_zip_name }}"
+    dest: "{{ onec_download_dir }}"
+    remote_src: yes
+    creates: "{{ onec_download_dir }}/{{ onec_setup_run }}"
+  become: yes
+  when: not onec_install_stat.stat.exists
+
+- name: Make 1C installer executable
+  ansible.builtin.file:
+    path: "{{ onec_download_dir }}/{{ onec_setup_run }}"
+    mode: "0755"
+  become: yes
+  when: not onec_install_stat.stat.exists
+
+- name: Install 1C server (unattended)
+  ansible.builtin.command:
+    cmd: >-
+      {{ onec_download_dir }}/{{ onec_setup_run }}
+      --mode unattended
+      --enable-components {{ onec_components }}
+    creates: "{{ onec_install_dir }}"
+  become: yes
+  when: not onec_install_stat.stat.exists
+
+- name: Link 1C systemd unit template
+  ansible.builtin.command:
+    cmd: systemctl link {{ onec_install_dir }}/{{ onec_unit_template }}
+    creates: "/etc/systemd/system/{{ onec_unit_template }}"
+  become: yes
+
+- name: Read 1C systemd unit template
+  ansible.builtin.slurp:
+    src: "{{ onec_install_dir }}/{{ onec_unit_template }}"
+  register: onec_unit_template_raw
+  become: yes
+
+- name: Install short-name systemd unit for 1C
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/{{ onec_service_alias }}.service"
+    mode: "0644"
+    content: "{{ onec_unit_template_raw.content | b64decode | regex_replace('%i', onec_instance) | regex_replace('%I', onec_instance) }}"
+  become: yes
+  notify: Reload systemd
+
+- name: Flush handlers to reload systemd
+  ansible.builtin.meta: flush_handlers
+
+- name: Stop long instance unit if running (avoid double start)
+  ansible.builtin.systemd:
+    name: "{{ onec_unit_name }}"
+    state: stopped
+    enabled: no
+  become: yes
+  failed_when: false
+
+- name: Enable and start 1C server via short alias
+  ansible.builtin.systemd:
+    name: "{{ onec_service_alias }}.service"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: yes
+
+- name: Show 1C service alias hint
+  ansible.builtin.debug:
+    msg:
+      - "Служба 1С доступна по короткому имени:"
+      - "  systemctl status {{ onec_service_alias }}"
+      - "  systemctl start|stop|restart {{ onec_service_alias }}"
+      - "Полное имя: {{ onec_unit_name }}"
